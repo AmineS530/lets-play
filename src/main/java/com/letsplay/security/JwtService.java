@@ -1,84 +1,100 @@
 package com.letsplay.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
+/**
+ * Service component responsible for JSON Web Tokens lifecycle management.
+ * <p>
+ * This utility generates cryptographically signed JWT strings, validates token signatures 
+ * against a configured application secret, and parses claims to extract authenticated user criteria
+ * (such as public ID, username, and role).
+ * </p>
+ */
 @Service
 public class JwtService {
 
     @Value("${jwt.secret}")
-    private String secretKey;
+    private String secret;
 
     @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    private long expiration;
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    /**
+     * Helper mapping the raw secret byte configuration to a secure HMAC-SHA key.
+     *
+     * @return cryptographically secured HMAC SecretKey instance.
+     */
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
-    }
-
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return buildToken(extraClaims, userDetails, jwtExpiration);
-    }
-
-    private String buildToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails,
-            long expiration
-    ) {
-        return Jwts
-                .builder()
-                .claims(extraClaims)
-                .subject(userDetails.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
+    /**
+     * Generates a signed, structured JSON Web Token for an authenticated user session.
+     *
+     * @param publicId the user's system-wide unique public identifier (mapped to the token subject claim).
+     * @param role     the authorization role classification.
+     * @return the serialized JWT string.
+     */
+    public String generateToken(String publicId, String role) {
+        return Jwts.builder()
+                .subject(publicId)
+                .claim("role", role)
+                .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey())
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    /**
+     * Extracts the subject claim (the user's public ID) from a signed token.
+     */
+    public String extractPublicId(String token) {
+        return parseClaims(token).getSubject();
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    /**
+     * Extracts the custom role claim from a signed token.
+     */
+    public String extractRole(String token) {
+        return parseClaims(token).get("role", String.class);
     }
 
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    /**
+     * Validates whether a token signature is cryptographically valid and not expired.
+     *
+     * @param token raw JWT string to evaluate.
+     * @return {@code true} if valid, {@code false} if parsing triggers a signature discrepancy or expiration.
+     */
+    public boolean isTokenValid(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
-    private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .verifyWith(getSignInKey())
+    /**
+     * Centralized parser checking the token signature against the cryptographically secure signing key.
+     *
+     * @param token JWT string to parse.
+     * @return the set of verified claims.
+     */
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
-
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
 }
+

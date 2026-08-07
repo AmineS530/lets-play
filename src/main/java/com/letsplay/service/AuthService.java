@@ -7,12 +7,13 @@ import com.letsplay.dto.UserResponse;
 import com.letsplay.exception.EmailAlreadyExistsException;
 import com.letsplay.model.User;
 import com.letsplay.repository.UserRepository;
-import com.letsplay.security.CustomUserDetails;
 import com.letsplay.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -42,6 +43,7 @@ public class AuthService {
         String role = (request.getRole() == null || request.getRole().trim().isEmpty()) ? "USER" : request.getRole().toUpperCase();
 
         User user = User.builder()
+                .id(UUID.randomUUID().toString())
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -49,8 +51,7 @@ public class AuthService {
                 .build();
 
         User savedUser = userRepository.save(user);
-        CustomUserDetails userDetails = new CustomUserDetails(savedUser);
-        String jwtToken = jwtService.generateToken(userDetails);
+        String jwtToken = jwtService.generateToken(savedUser.getPublicId(), savedUser.getRole());
 
         return AuthResponse.builder()
                 .token(jwtToken)
@@ -69,8 +70,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("User not found after authentication"));
 
-        CustomUserDetails userDetails = new CustomUserDetails(user);
-        String jwtToken = jwtService.generateToken(userDetails);
+        String jwtToken = jwtService.generateToken(user.getPublicId(), user.getRole());
 
         return AuthResponse.builder()
                 .token(jwtToken)

@@ -2,32 +2,39 @@ package com.letsplay.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.letsplay.exception.ErrorResponse;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class RateLimitingFilter implements Filter {
 
     private final Environment environment;
-    private final Map<String, RequestCounter> limitMap = new ConcurrentHashMap<>();
     private static final int MAX_REQUESTS_PER_MINUTE = 60;
+    private final Cache<String, AtomicInteger> requestCounts;
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
+    @Autowired
     public RateLimitingFilter(Environment environment) {
         this.environment = environment;
+        this.requestCounts = Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofMinutes(1))
+                .maximumSize(10_000)
+                .build();
     }
 
     @Override
@@ -42,18 +49,9 @@ public class RateLimitingFilter implements Filter {
 
         if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse httpResponse) {
             String ip = httpRequest.getRemoteAddr();
-            long currentTime = System.currentTimeMillis();
-            
-            RequestCounter counter = limitMap.compute(ip, (key, value) -> {
-                if (value == null || (currentTime - value.timestamp) > 60000) {
-                    return new RequestCounter(currentTime, new AtomicInteger(1));
-                } else {
-                    value.count.incrementAndGet();
-                    return value;
-                }
-            });
+            AtomicInteger counter = requestCounts.get(ip, k -> new AtomicInteger(0));
 
-            if (counter.count.get() > MAX_REQUESTS_PER_MINUTE) {
+            if (counter.incrementAndGet() > MAX_REQUESTS_PER_MINUTE) {
                 httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -72,14 +70,5 @@ public class RateLimitingFilter implements Filter {
         
         chain.doFilter(request, response);
     }
-
-    private static class RequestCounter {
-        final long timestamp;
-        final AtomicInteger count;
-
-        RequestCounter(long timestamp, AtomicInteger count) {
-            this.timestamp = timestamp;
-            this.count = count;
-        }
-    }
 }
+

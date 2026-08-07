@@ -3,843 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let's Play API Test Client</title>
+    <title>Let's Play — API Client</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #0b0f19;
-            --bg-card: rgba(20, 26, 42, 0.6);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --primary: #4facfe;
-            --primary-glow: rgba(79, 172, 254, 0.3);
-            --secondary: #00f2fe;
+            --bg: #090d16;
+            --card-bg: #111827;
+            --border: #1f293d;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
             --success: #10b981;
-            --danger: #ef4444;
             --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.08) 0px, transparent 50%);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 1.5rem;
             line-height: 1.5;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* Header section styling */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.025em;
-        }
-
-        .config-panel {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1.25rem;
-            border-radius: 12px;
-        }
-
-        label {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        input, select, textarea {
-            background: rgba(11, 15, 25, 0.8);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-
-        /* Top Auth Status Banner */
-        .auth-status-banner {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--danger);
-            box-shadow: 0 0 8px var(--danger);
-            transition: all 0.3s ease;
-        }
-
-        .dot.logged-in {
-            background-color: var(--success);
-            box-shadow: 0 0 8px var(--success);
-        }
-
-        /* Button Styling */
-        .btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            color: #0b0f19;
-            padding: 0.6rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px var(--primary-glow);
-            filter: brightness(1.1);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: none;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 1024px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .left-column {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.75rem;
-            backdrop-filter: blur(12px);
-        }
-
-        .card h2 {
-            font-size: 1.35rem;
-            margin-bottom: 1.25rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-row {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group-inline {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .auth-forms {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 640px) {
-            .auth-forms {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Logger console design */
-        .logger-card {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .logger-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .console-box {
-            flex-grow: 1;
-            background: #05070c;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1.25rem;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            height: 600px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .log-entry {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            padding-bottom: 0.75rem;
-        }
-
-        .log-time {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .log-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .log-req { color: var(--primary); }
-        .log-res-success { color: var(--success); }
-        .log-res-error { color: var(--danger); }
-
-        .log-body {
-            white-space: pre-wrap;
-            word-break: break-all;
-            background: rgba(255, 255, 255, 0.02);
-            padding: 0.75rem;
-            border-radius: 6px;
-            border-left: 3px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .log-res-success .log-body { border-left-color: var(--success); }
-        .log-res-error .log-body { border-left-color: var(--danger); }
-
-        /* Tables styles */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
             font-size: 0.9rem;
         }
 
-        th, td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--border-color);
+        .app { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 1rem 1.25rem; border-radius: 10px;
+        }
+        h1 { font-size: 1.2rem; font-weight: 700; color: #fff; }
+
+        .auth-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 0.75rem 1.25rem; border-radius: 10px; font-size: 0.85rem;
         }
 
-        th {
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-muted);
-            font-weight: 500;
-        }
+        .status { display: flex; align-items: center; gap: 0.5rem; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+        .dot.active { background: var(--success); }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
 
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.01);
+        .section {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;
         }
+        .section-title { font-size: 1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
 
-        .actions-cell {
-            display: flex;
-            gap: 0.5rem;
+        form { display: flex; flex-direction: column; gap: 0.75rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+        input, select, textarea {
+            width: 100%; background: #0b1120; border: 1px solid var(--border);
+            color: var(--text); padding: 0.5rem 0.75rem; border-radius: 6px; font-family: inherit; font-size: 0.85rem;
         }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
+        .btn {
+            background: var(--accent); color: #fff; border: none; padding: 0.5rem 1rem;
+            border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.35rem; justify-content: center;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
+        .btn-secondary.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn-danger { background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+        .btn-sm { padding: 0.25rem 0.55rem; font-size: 0.75rem; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+        th, td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+        th { color: var(--muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+
+        /* Enhanced Console Styling */
+        .console-toolbar {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            background: #090d16; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border);
+        }
+        .console-filters { display: flex; gap: 0.35rem; }
+        .console-search { flex-grow: 1; max-width: 180px; }
+        
+        .console {
+            background: #050811; border: 1px solid var(--border); border-radius: 8px;
+            padding: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+            height: 650px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem;
+            scroll-behavior: smooth;
+        }
+        
+        .log-item {
+            border: 1px solid var(--border); background: #0b101d; border-radius: 6px;
+            overflow: hidden; transition: border-color 0.2s;
+        }
+        .log-item:hover { border-color: rgba(255, 255, 255, 0.15); }
+        .log-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.45rem 0.75rem; background: rgba(255, 255, 255, 0.02); cursor: pointer; user-select: none;
+        }
+        .log-meta { display: flex; align-items: center; gap: 0.5rem; }
         .badge {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            display: inline-block; padding: 0.15rem 0.4rem; border-radius: 4px;
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
         }
-
-        .badge-admin { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-user { background: rgba(79, 172, 254, 0.15); color: var(--primary); border: 1px solid rgba(79, 172, 254, 0.3); }
+        .badge-req { background: rgba(59, 130, 246, 0.2); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-ok { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-err { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-warn { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+        
+        .log-time { color: var(--muted); font-size: 0.7rem; }
+        .log-body { padding: 0.6rem 0.75rem; background: #060912; border-top: 1px solid var(--border); display: block; }
+        .log-body.collapsed { display: none; }
+        .log-body pre { max-height: 180px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; margin: 0; font-size: 0.76rem; }
+        
+        /* Syntax highlighting */
+        .json-key { color: #93c5fd; }
+        .json-str { color: #a7f3d0; }
+        .json-num { color: #fde047; }
+        .json-bool { color: #f472b6; }
+        .json-null { color: #9ca3af; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app">
         <header>
-            <h1>Let's Play CRUD Test Client</h1>
-            <div class="config-panel">
-                <label for="baseUrl">API Base URL:</label>
-                <input type="text" id="baseUrl" value="http://localhost:8080" style="width: 220px;">
+            <h1>Let's Play API Test Client</h1>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="baseUrl">Host</label>
+                <input type="text" id="baseUrl" value="http://localhost:8080" readonly style="width: 180px; opacity: 0.7; cursor: not-allowed;">
             </div>
         </header>
 
-        <!-- Dynamic Auth Banner -->
-        <div class="auth-status-banner">
-            <div class="status-indicator">
-                <div id="statusDot" class="dot"></div>
-                <div>
-                    <span style="font-weight: 600;" id="statusText">Not Logged In</span>
-                    <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 1rem;" id="userDetails">Guest Mode</span>
-                </div>
+        <div class="auth-bar">
+            <div class="status">
+                <div id="dot" class="dot"></div>
+                <span id="authInfo" style="font-weight: 500;">Not Authenticated</span>
             </div>
-            <button id="logoutBtn" class="btn btn-secondary btn-danger" style="display: none;" onclick="logout()">Logout</button>
+            <button id="logoutBtn" class="btn btn-secondary btn-sm" style="display: none;" onclick="logout()">Logout</button>
         </div>
 
         <div class="grid">
-            <!-- Left inputs panel -->
-            <div class="left-column">
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                 
-                <!-- Authentication forms (side-by-side) -->
-                <div class="card">
-                    <h2>Account Portal</h2>
-                    <div class="auth-forms">
-                        <!-- Register -->
-                        <div>
-                            <h3 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--primary);">1. Register</h3>
-                            <form id="registerForm" onsubmit="handleRegister(event)">
-                                <div class="form-row">
-                                    <label>Full Name</label>
-                                    <input type="text" id="regName" required placeholder="John Doe">
-                                </div>
-                                <div class="form-row">
-                                    <label>Email Address</label>
-                                    <input type="email" id="regEmail" required placeholder="john@example.com">
-                                </div>
-                                <div class="form-row">
-                                    <label>Password</label>
-                                    <input type="password" id="regPassword" required placeholder="••••••••">
-                                </div>
-                                <div class="form-row">
-                                    <label>Role</label>
-                                    <select id="regRole">
-                                        <option value="USER">USER</option>
-                                        <option value="ADMIN">ADMIN</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn" style="width: 100%;">Register</button>
-                            </form>
-                        </div>
-                        
-                        <!-- Login -->
-                        <div>
-                            <h3 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--secondary);">2. Login</h3>
-                            <form id="loginForm" onsubmit="handleLogin(event)">
-                                <div class="form-row">
-                                    <label>Email Address</label>
-                                    <input type="email" id="loginEmail" required placeholder="john@example.com">
-                                </div>
-                                <div class="form-row">
-                                    <label>Password</label>
-                                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                                </div>
-                                <button type="submit" class="btn" style="width: 100%; margin-top: 5.75rem;">Login</button>
-                            </form>
-                        </div>
+                <!-- Auth Section -->
+                <div class="section">
+                    <div class="section-title">Authentication</div>
+                    <div class="form-grid">
+                        <form onsubmit="register(event)">
+                            <label>Register</label>
+                            <input type="text" id="regName" placeholder="Name" required>
+                            <input type="email" id="regEmail" placeholder="Email" required>
+                            <input type="password" id="regPass" placeholder="Password" required>
+                            <select id="regRole">
+                                <option value="USER">USER</option>
+                                <option value="ADMIN">ADMIN</option>
+                            </select>
+                            <button type="submit" class="btn">Register</button>
+                        </form>
+
+                        <form onsubmit="login(event)">
+                            <label>Login</label>
+                            <input type="email" id="loginEmail" placeholder="Email" required>
+                            <input type="password" id="loginPass" placeholder="Password" required>
+                            <button type="submit" class="btn" style="margin-top: auto;">Login</button>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Products CRUD -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-                        <h2 style="margin-bottom: 0; border: none; padding: 0;">Products Controller</h2>
-                        <button class="btn btn-secondary" onclick="fetchProducts()">List Products</button>
+                <!-- Products Section -->
+                <div class="section">
+                    <div class="section-title">
+                        Products
+                        <button class="btn btn-secondary btn-sm" onclick="getProducts()">Refresh</button>
                     </div>
 
-                    <form id="productForm" onsubmit="handleCreateProduct(event)" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.2); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color);">
-                        <h3 id="productFormTitle" style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary);">Create New Product</h3>
+                    <form id="prodForm" onsubmit="saveProduct(event)">
                         <input type="hidden" id="prodId">
-                        
-                        <div class="form-group-inline">
-                            <div class="form-row">
+                        <div class="form-grid">
+                            <div>
                                 <label>Name</label>
                                 <input type="text" id="prodName" required placeholder="Product Title">
                             </div>
-                            <div class="form-row">
+                            <div>
                                 <label>Price ($)</label>
-                                <input type="number" id="prodPrice" step="0.01" min="0" required placeholder="49.99">
+                                <input type="number" id="prodPrice" step="0.01" min="0" required placeholder="29.99">
                             </div>
                         </div>
-                        <div class="form-row">
+                        <div>
                             <label>Description</label>
-                            <textarea id="prodDesc" rows="2" placeholder="Brief description..."></textarea>
+                            <input type="text" id="prodDesc" placeholder="Description">
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
                             <button type="submit" id="prodSubmitBtn" class="btn">Create Product</button>
-                            <button type="button" id="prodCancelBtn" class="btn btn-secondary" style="display: none;" onclick="cancelProductEdit()">Cancel</button>
+                            <button type="button" id="prodCancelBtn" class="btn btn-secondary" style="display: none;" onclick="cancelEdit()">Cancel</button>
                         </div>
                     </form>
 
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Price</th>
-                                    <th>Owner ID</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productsTableBody">
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">No products loaded. Click "List Products" above.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Owner ID</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prodTable">
+                            <tr><td colspan="4" style="color: var(--muted); text-align: center;">No products. Click Refresh.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- Admin Users management -->
-                <div class="card" id="adminCard">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-                        <h2 style="margin-bottom: 0; border: none; padding: 0;">Users (Admin Panel)</h2>
-                        <button class="btn btn-secondary" onclick="fetchUsers()">List Users</button>
+                <!-- Users Section (Admin) -->
+                <div class="section">
+                    <div class="section-title">
+                        Users (Admin)
+                        <button class="btn btn-secondary btn-sm" onclick="getUsers()">List Users</button>
                     </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTableBody">
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">Admin privileges required. Click "List Users" to load.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="4" style="color: var(--muted); text-align: center;">Click List Users.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
 
             </div>
 
-            <!-- Right Logger console -->
-            <div class="logger-card card">
-                <div class="logger-header">
-                    <h2>Terminal Response Log</h2>
-                    <button class="btn btn-secondary" onclick="clearConsole()">Clear Log</button>
+            <!-- Enhanced Console Log Section -->
+            <div class="section" style="height: 100%;">
+                <div class="section-title">
+                    <span>Console Log <span id="logCount" style="font-size: 0.75rem; color: var(--muted); font-weight: normal;">(0)</span></span>
+                    <button class="btn btn-secondary btn-sm" onclick="clearLog()">Clear Log</button>
                 </div>
-                <div id="consoleBox" class="console-box">
-                    <div style="color: var(--text-muted); font-style: italic; text-align: center; margin-top: auto; margin-bottom: auto;">
-                        Response payloads and raw API requests will be logged here.
+
+                <!-- Console Filters & Search -->
+                <div class="console-toolbar">
+                    <div class="console-filters">
+                        <button id="filterAll" class="btn btn-secondary btn-sm active" onclick="setFilter('ALL')">All</button>
+                        <button id="filterReq" class="btn btn-secondary btn-sm" onclick="setFilter('REQ')">Requests</button>
+                        <button id="filterOk" class="btn btn-secondary btn-sm" onclick="setFilter('OK')">2xx OK</button>
+                        <button id="filterErr" class="btn btn-secondary btn-sm" onclick="setFilter('ERR')">Errors</button>
                     </div>
+                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <button class="btn btn-secondary btn-sm" onclick="collapseAllLogs(true)">Collapse All</button>
+                        <input type="text" id="logSearch" class="console-search" placeholder="Filter..." oninput="renderLogs()">
+                    </div>
+                </div>
+
+                <div id="console" class="console">
+                    <div style="color: var(--muted); margin: auto; font-style: italic;">No API logs yet. Perform an action to view request/response telemetry.</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Global State variables
-        let currentToken = localStorage.getItem("token") || "";
-        let currentUser = null;
+        let token = localStorage.getItem("token") || "";
+        let user = null;
+        let logs = [];
+        let activeFilter = 'ALL';
 
-        // Initialize state on load
-        window.addEventListener("DOMContentLoaded", () => {
-            if (currentToken) {
-                parseTokenAndSetState();
+        window.onload = () => {
+            if (token) parseToken();
+            updateUI();
+        };
+
+        function getHost() { return "http://localhost:8080"; }
+
+        function setFilter(type) {
+            activeFilter = type;
+            document.querySelectorAll('.console-filters button').forEach(b => b.classList.remove('active'));
+            if (type === 'ALL') document.getElementById('filterAll').classList.add('active');
+            if (type === 'REQ') document.getElementById('filterReq').classList.add('active');
+            if (type === 'OK') document.getElementById('filterOk').classList.add('active');
+            if (type === 'ERR') document.getElementById('filterErr').classList.add('active');
+            renderLogs();
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
             }
-            updateAuthUI();
-        });
-
-        function getBaseUrl() {
-            return document.getElementById("baseUrl").value.trim();
+            json = escapeHtml(json);
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-num';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-str';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-bool';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
         }
 
-        // Helper to format timestamps
-        function getTimestamp() {
-            return new Date().toLocaleTimeString();
-        }
+        function addLog(type, title, data, status = 200) {
+            // Auto-collapse older logs to keep console clean and uncluttered
+            logs.forEach(l => l.collapsed = true);
 
-        // Clear logger
-        function clearConsole() {
-            document.getElementById("consoleBox").innerHTML = `
-                <div style="color: var(--text-muted); font-style: italic; text-align: center; margin-top: auto; margin-bottom: auto;">
-                    Response payloads and raw API requests will be logged here.
-                </div>
-            `;
-        }
-
-        // Add log entry to terminal console
-        function logToConsole(type, title, message, isError = false) {
-            const consoleBox = document.getElementById("consoleBox");
-            
-            // Remove initial placeholder
-            if (consoleBox.querySelector('div[style*="italic"]')) {
-                consoleBox.innerHTML = "";
-            }
-
-            const entry = document.createElement("div");
-            entry.className = "log-entry";
-
-            let classType = "log-req";
-            if (type === "RESPONSE") {
-                classType = isError ? "log-res-error" : "log-res-success";
-            }
-
-            let formattedMsg = typeof message === "object" ? JSON.stringify(message, null, 2) : message;
-
-            entry.innerHTML = `
-                <div class="log-time">[${getTimestamp()}]</div>
-                <div class="log-title ${classType}">
-                    <span><strong>${type}</strong></span>
-                    <span>•</span>
-                    <span>${title}</span>
-                </div>
-                <pre class="log-body">${escapeHtml(formattedMsg)}</pre>
-            `;
-
-            consoleBox.appendChild(entry);
-            consoleBox.scrollTop = consoleBox.scrollHeight;
-        }
-
-        function escapeHtml(str) {
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Standardized request dispatcher
-        async function apiRequest(endpoint, method = "GET", body = null) {
-            const url = `${getBaseUrl()}${endpoint}`;
-            const headers = {
-                "Content-Type": "application/json"
+            const entry = {
+                id: Date.now() + Math.random(),
+                type,
+                title,
+                data,
+                status,
+                time: new Date().toLocaleTimeString(),
+                collapsed: false
             };
-            if (currentToken) {
-                headers["Authorization"] = `Bearer ${currentToken}`;
-            }
+            logs.push(entry);
+            // Cap log history buffer to maximum 8 items; remove oldest log when exceeding 8
+            while (logs.length > 8) logs.shift();
 
-            logToConsole("REQUEST", `${method} ${endpoint}`, {
-                url,
-                method,
-                headers: { ...headers, Authorization: currentToken ? "Bearer [JWT_SECRET_TOKEN]" : "None" },
-                body: body
+            renderLogs(true);
+        }
+
+        function collapseAllLogs(collapse = true) {
+            logs.forEach(l => l.collapsed = collapse);
+            renderLogs(false);
+        }
+
+        function toggleLogCollapse(id) {
+            const log = logs.find(l => l.id === id);
+            if (log) {
+                log.collapsed = !log.collapsed;
+                renderLogs(false);
+            }
+        }
+
+        function copyLog(e, id) {
+            e.stopPropagation();
+            const log = logs.find(l => l.id === id);
+            if (log) {
+                const text = typeof log.data === 'object' ? JSON.stringify(log.data, null, 2) : log.data;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("Copied log data to clipboard!");
+                });
+            }
+        }
+
+        function renderLogs(autoScroll = false) {
+            const c = document.getElementById("console");
+            const search = document.getElementById("logSearch").value.toLowerCase();
+            document.getElementById("logCount").innerText = `(${logs.length})`;
+
+            let filtered = logs.filter(l => {
+                if (activeFilter === 'REQ' && l.type !== 'REQ') return false;
+                if (activeFilter === 'OK' && (l.type !== 'RES' || l.status >= 400)) return false;
+                if (activeFilter === 'ERR' && (l.type !== 'RES' || l.status < 400)) return false;
+                if (search) {
+                    const matchTitle = l.title.toLowerCase().includes(search);
+                    const matchData = JSON.stringify(l.data).toLowerCase().includes(search);
+                    return matchTitle || matchData;
+                }
+                return true;
             });
 
-            try {
-                const response = await fetch(url, {
-                    method,
-                    headers,
-                    body: body ? JSON.stringify(body) : null
-                });
+            if (filtered.length === 0) {
+                c.innerHTML = `<div style="color: var(--muted); margin: auto; font-style: italic;">No matching logs found.</div>`;
+                return;
+            }
 
-                let responseData = "";
-                const contentType = response.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    responseData = await response.json();
-                } else {
-                    responseData = await response.text();
+            c.innerHTML = filtered.map(l => {
+                let badgeClass = 'badge-req';
+                if (l.type === 'RES') {
+                    if (l.status >= 200 && l.status < 300) badgeClass = 'badge-ok';
+                    else if (l.status >= 400) badgeClass = 'badge-err';
+                    else badgeClass = 'badge-warn';
                 }
 
-                if (response.ok) {
-                    logToConsole("RESPONSE", `STATUS ${response.status} OK`, responseData, false);
-                    return { success: true, status: response.status, data: responseData };
-                } else {
-                    logToConsole("RESPONSE", `STATUS ${response.status} ERROR`, responseData, true);
-                    return { success: false, status: response.status, data: responseData };
-                }
-            } catch (err) {
-                logToConsole("RESPONSE", "NETWORK OR TIMEOUT ERROR", err.message, true);
-                return { success: false, status: 0, data: err.message };
+                const prettyData = syntaxHighlight(l.data);
+
+                return `
+                    <div class="log-item">
+                        <div class="log-header" onclick="toggleLogCollapse(${l.id})">
+                            <div class="log-meta">
+                                <span class="badge ${badgeClass}">${l.type === 'REQ' ? 'REQ' : l.status}</span>
+                                <strong>${escapeHtml(l.title)}</strong>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="log-time">${l.time}</span>
+                                <button class="btn btn-secondary btn-sm" onclick="copyLog(event, ${l.id})">Copy</button>
+                                <span style="font-size: 0.75rem; color: var(--muted);">${l.collapsed ? '►' : '▼'}</span>
+                            </div>
+                        </div>
+                        <div class="log-body ${l.collapsed ? 'collapsed' : ''}">
+                            <pre>${prettyData}</pre>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (autoScroll) {
+                c.scrollTop = c.scrollHeight;
             }
         }
 
-        // Token parsing and State updates
-        function parseTokenAndSetState() {
-            try {
-                const base64Url = currentToken.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+        function clearLog() {
+            logs = [];
+            renderLogs();
+        }
 
-                const decoded = JSON.parse(jsonPayload);
-                // Standard JWT claims: sub is email
-                currentUser = {
-                    email: decoded.sub,
-                    // If claims contain roles or id, fetch them. In security configuration we put role in auth
-                    // We can map fields if we had customized them
-                    role: decoded.role || "UNKNOWN"
-                };
-            } catch (e) {
-                console.error("Token parsing error", e);
+        function escapeHtml(s) {
+            return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        async function request(path, method = "GET", body = null) {
+            const url = getHost() + path;
+            const headers = { "Content-Type": "application/json" };
+            if (token) headers["Authorization"] = `Bearer ${token}`;
+
+            addLog("REQ", `${method} ${path}`, { url, method, body });
+
+            try {
+                const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+                let data = "";
+                const ct = res.headers.get("content-type");
+                if (ct && ct.includes("application/json")) data = await res.json();
+                else data = await res.text();
+
+                addLog("RES", `${res.status} ${res.ok ? 'OK' : 'Error'} ${method} ${path}`, data, res.status);
+                return { ok: res.ok, status: res.status, data };
+            } catch (err) {
+                addLog("RES", `Network Error ${method} ${path}`, err.message, 0);
+                return { ok: false, data: err.message };
+            }
+        }
+
+        function parseToken() {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                user = { sub: payload.sub, role: payload.role || "USER" };
+            } catch {
                 logout();
             }
         }
 
-        function updateAuthUI() {
-            const statusDot = document.getElementById("statusDot");
-            const statusText = document.getElementById("statusText");
-            const userDetails = document.getElementById("userDetails");
+        function updateUI() {
+            const dot = document.getElementById("dot");
+            const info = document.getElementById("authInfo");
             const logoutBtn = document.getElementById("logoutBtn");
-
-            if (currentToken && currentUser) {
-                statusDot.className = "dot logged-in";
-                statusText.innerText = "Authenticated";
-                statusText.style.color = "var(--success)";
-                userDetails.innerHTML = `Email: <strong>${currentUser.email}</strong> | Role: <span class="badge ${currentUser.role === 'ADMIN' ? 'badge-admin' : 'badge-user'}">${currentUser.role}</span>`;
-                logoutBtn.style.display = "block";
+            if (token && user) {
+                dot.className = "dot active";
+                info.innerHTML = `Auth: <strong>${user.sub}</strong> [${user.role}]`;
+                logoutBtn.style.display = "inline-block";
             } else {
-                statusDot.className = "dot";
-                statusText.innerText = "Not Logged In";
-                statusText.style.color = "var(--danger)";
-                userDetails.innerText = "Guest Mode";
+                dot.className = "dot";
+                info.innerText = "Not Authenticated";
                 logoutBtn.style.display = "none";
             }
         }
 
         function logout() {
-            currentToken = "";
-            currentUser = null;
+            token = ""; user = null;
             localStorage.removeItem("token");
-            updateAuthUI();
-            logToConsole("LOCAL STATE", "Logout Executed", "Cleared JWT token from LocalStorage.");
+            updateUI();
+            addLog("REQ", "Logout Executed", "Cleared token from storage.");
         }
 
-        // AUTH ENDPOINTS REQUESTS
-        async function handleRegister(event) {
-            event.preventDefault();
-            const name = document.getElementById("regName").value;
-            const email = document.getElementById("regEmail").value;
-            const password = document.getElementById("regPassword").value;
-            const role = document.getElementById("regRole").value;
-
-            const res = await apiRequest("/auth/register", "POST", { name, email, password, role });
-            if (res.success && res.data.token) {
-                currentToken = res.data.token;
-                localStorage.setItem("token", currentToken);
-                parseTokenAndSetState();
-                updateAuthUI();
-                document.getElementById("registerForm").reset();
+        async function register(e) {
+            e.preventDefault();
+            const body = {
+                name: document.getElementById("regName").value,
+                email: document.getElementById("regEmail").value,
+                password: document.getElementById("regPass").value,
+                role: document.getElementById("regRole").value
+            };
+            const res = await request("/auth/register", "POST", body);
+            if (res.ok && res.data.token) {
+                token = res.data.token;
+                localStorage.setItem("token", token);
+                parseToken(); updateUI();
             }
         }
 
-        async function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById("loginEmail").value;
-            const password = document.getElementById("loginPassword").value;
-
-            const res = await apiRequest("/auth/login", "POST", { email, password });
-            if (res.success && res.data.token) {
-                currentToken = res.data.token;
-                localStorage.setItem("token", currentToken);
-                parseTokenAndSetState();
-                updateAuthUI();
-                document.getElementById("loginForm").reset();
+        async function login(e) {
+            e.preventDefault();
+            const body = {
+                email: document.getElementById("loginEmail").value,
+                password: document.getElementById("loginPass").value
+            };
+            const res = await request("/auth/login", "POST", body);
+            if (res.ok && res.data.token) {
+                token = res.data.token;
+                localStorage.setItem("token", token);
+                parseToken(); updateUI();
             }
         }
 
-        // PRODUCT ENDPOINTS REQUESTS
-        async function fetchProducts() {
-            const res = await apiRequest("/products", "GET");
-            const tbody = document.getElementById("productsTableBody");
-            
-            if (res.success && Array.isArray(res.data)) {
+        async function getProducts() {
+            const res = await request("/products", "GET");
+            const tb = document.getElementById("prodTable");
+            if (res.ok && Array.isArray(res.data)) {
                 if (res.data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No products found in DB.</td></tr>`;
+                    tb.innerHTML = `<tr><td colspan="4" style="color: var(--muted); text-align: center;">No products.</td></tr>`;
                     return;
                 }
-                
-                tbody.innerHTML = res.data.map(p => `
+                tb.innerHTML = res.data.map(p => `
                     <tr>
-                        <td>
-                            <strong>${escapeHtml(p.name)}</strong>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(p.description || 'No description')}</div>
-                        </td>
+                        <td><strong>${escapeHtml(p.name)}</strong></td>
                         <td>$${p.price.toFixed(2)}</td>
-                        <td style="font-family: monospace; font-size: 0.8rem;">${p.userId}</td>
-                        <td class="actions-cell">
-                            <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="editProduct('${p.id}', '${escapeHtml(p.name)}', '${escapeHtml(p.description || '')}', ${p.price})">Edit</button>
-                            <button class="btn btn-secondary btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="deleteProduct('${p.id}')">Delete</button>
+                        <td style="font-family: monospace; font-size: 0.75rem;">${p.userId}</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="editProduct('${p.id}', '${escapeHtml(p.name)}', '${escapeHtml(p.description||'')}', ${p.price})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="delProduct('${p.id}')">Delete</button>
                         </td>
                     </tr>
                 `).join('');
-            } else {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--danger);">Failed to load products.</td></tr>`;
             }
         }
 
-        async function handleCreateProduct(event) {
-            event.preventDefault();
+        async function saveProduct(e) {
+            e.preventDefault();
             const id = document.getElementById("prodId").value;
             const name = document.getElementById("prodName").value;
             const price = parseFloat(document.getElementById("prodPrice").value);
             const description = document.getElementById("prodDesc").value;
 
-            let res;
-            if (id) {
-                // Update mode
-                res = await apiRequest(`/products/${id}`, "PUT", { name, price, description });
-            } else {
-                // Create mode
-                res = await apiRequest("/products", "POST", { name, price, description });
-            }
+            const res = id
+                ? await request(`/products/${id}`, "PUT", { name, price, description })
+                : await request("/products", "POST", { name, price, description });
 
-            if (res.success) {
-                cancelProductEdit();
-                fetchProducts();
+            if (res.ok) {
+                cancelEdit();
+                getProducts();
             }
         }
 
         function editProduct(id, name, desc, price) {
-            document.getElementById("productFormTitle").innerText = `Edit Product (ID: ${id})`;
-            document.getElementById("prodSubmitBtn").innerText = "Update Product";
-            document.getElementById("prodCancelBtn").style.display = "inline-flex";
-            
             document.getElementById("prodId").value = id;
             document.getElementById("prodName").value = name;
             document.getElementById("prodPrice").value = price;
             document.getElementById("prodDesc").value = desc;
-
-            document.getElementById("productForm").scrollIntoView({ behavior: 'smooth' });
+            document.getElementById("prodSubmitBtn").innerText = "Update Product";
+            document.getElementById("prodCancelBtn").style.display = "inline-block";
         }
 
-        function cancelProductEdit() {
-            document.getElementById("productFormTitle").innerText = "Create New Product";
+        function cancelEdit() {
+            document.getElementById("prodId").value = "";
+            document.getElementById("prodForm").reset();
             document.getElementById("prodSubmitBtn").innerText = "Create Product";
             document.getElementById("prodCancelBtn").style.display = "none";
-            
-            document.getElementById("productForm").reset();
-            document.getElementById("prodId").value = "";
         }
 
-        async function deleteProduct(id) {
-            if (confirm("Are you sure you want to delete this product?")) {
-                const res = await apiRequest(`/products/${id}`, "DELETE");
-                if (res.success) {
-                    fetchProducts();
-                }
+        async function delProduct(id) {
+            if (confirm("Delete product?")) {
+                const res = await request(`/products/${id}`, "DELETE");
+                if (res.ok) getProducts();
             }
         }
 
-        // USER MANAGEMENT (ADMIN ONLY)
-        async function fetchUsers() {
-            const res = await apiRequest("/users", "GET");
-            const tbody = document.getElementById("usersTableBody");
-
-            if (res.success && Array.isArray(res.data)) {
-                if (res.data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No users found.</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = res.data.map(u => `
+        async function getUsers() {
+            const res = await request("/users", "GET");
+            const tb = document.getElementById("usersTable");
+            if (res.ok && Array.isArray(res.data)) {
+                tb.innerHTML = res.data.map(u => `
                     <tr>
                         <td><strong>${escapeHtml(u.name)}</strong></td>
                         <td>${escapeHtml(u.email)}</td>
-                        <td><span class="badge ${u.role === 'ADMIN' ? 'badge-admin' : 'badge-user'}">${u.role}</span></td>
-                        <td class="actions-cell">
-                            <button class="btn btn-secondary btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="deleteUser('${u.id}')">Delete</button>
+                        <td>${u.role}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="delUser('${u.id}')">Delete</button>
                         </td>
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--danger);">${res.data.message || 'Access Denied: Admin privileges required.'}</td></tr>`;
+                tb.innerHTML = `<tr><td colspan="4" style="color: var(--danger); text-align: center;">${res.data.message || 'Admin required.'}</td></tr>`;
             }
         }
 
-        async function deleteUser(id) {
-            if (confirm("Are you sure you want to delete this user? (This will cascade delete all their products)")) {
-                const res = await apiRequest(`/users/${id}`, "DELETE");
-                if (res.success) {
-                    fetchUsers();
-                }
+        async function delUser(id) {
+            if (confirm("Delete user and cascade delete products?")) {
+                const res = await request(`/users/${id}`, "DELETE");
+                if (res.ok) getUsers();
             }
         }
     </script>
