@@ -1,0 +1,44 @@
+services:
+  app:
+    image: maven:3.9.6-eclipse-temurin-21
+    container_name: lets-play-backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - m2-cache:/root/.m2
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongodb
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_DATABASE=letsplaydb
+      - SERVER_PORT=8080
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: mvn spring-boot:run
+
+  mongodb:
+    image: mongo:7.0
+    container_name: lets-play-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=letsplaydb
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongo-data:
+  m2-cache:
+
