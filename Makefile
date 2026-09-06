@@ -2,19 +2,19 @@ all: run
 
 run:
 	@echo "Starting Spring Boot application..."
-	@cd ./backend && (./mvnw spring-boot:run || mvn spring-boot:run)
+	@cd ./backend && ./mvnw spring-boot:run 
 
 test:
 	@echo "Running tests..."
-	@cd ./backend && (./mvnw test || mvn test)
+	@cd ./backend && ./mvnw test
 
 build:
 	@echo "Building application..."
-	@cd ./backend && (./mvnw clean package -DskipTests || mvn clean package -DskipTests)
+	@cd ./backend && ./mvnw clean package -DskipTests
 
 clean:
 	@echo "Cleaning build artifacts..."
-	@cd ./backend && (./mvnw clean || mvn clean)
+	@cd ./backend && ./mvnw clean
 
 compose-up:
 	@echo "Starting Docker Compose stack..."
