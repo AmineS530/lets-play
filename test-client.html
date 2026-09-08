@@ -137,9 +137,16 @@
     <div class="app">
         <header>
             <h1>Let's Play API Test Client</h1>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <label for="baseUrl">Host</label>
-                <input type="text" id="baseUrl" value="http://localhost:8080" readonly style="width: 180px; opacity: 0.7; cursor: not-allowed;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="status" style="background: #090d16; padding: 0.35rem 0.75rem; border-radius: 20px; border: 1px solid var(--border);">
+                    <div id="serverDot" class="dot"></div>
+                    <span id="serverStatus">Checking server...</span>
+                    <button class="btn btn-secondary btn-sm" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" onclick="checkServer()">Ping</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="baseUrl">Host</label>
+                    <input type="text" id="baseUrl" value="http://localhost:8080" readonly style="width: 180px; opacity: 0.7; cursor: not-allowed;">
+                </div>
             </div>
         </header>
 
@@ -283,9 +290,29 @@
         window.onload = () => {
             if (token) parseToken();
             updateUI();
+            checkServer();
+            setInterval(checkServer, 10000);
         };
 
         function getHost() { return "http://localhost:8080"; }
+
+        async function checkServer() {
+            const dot = document.getElementById("serverDot");
+            const text = document.getElementById("serverStatus");
+            try {
+                const res = await fetch(`${getHost()}/products`, { method: "GET" });
+                if (res.ok) {
+                    dot.className = "dot active";
+                    text.innerText = "Server: Online";
+                } else {
+                    dot.className = "dot";
+                    text.innerText = `Server: Error (${res.status})`;
+                }
+            } catch {
+                dot.className = "dot";
+                text.innerText = "Server: Offline";
+            }
+        }
 
         function setFilter(type) {
             activeFilter = type;

@@ -17,8 +17,8 @@
 - [Entity & Database Design](#-entity--database-design)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Running with Docker Compose](#option-1-full-stack-via-docker-compose-recommended)
-  - [Running Backend Locally](#option-2-running-backend-locally-with-dockerized-mongodb)
+  - [Starting the Application](#starting-the-application)
+  - [Database Commands](#database-commands)
 - [Manual Testing via Web Client](#-manual-testing-via-web-client)
 - [Security & Architecture Features](#-security--architecture-features)
 - [📘 API Documentation & Endpoint Reference](#-api-documentation--endpoint-reference)
@@ -121,59 +121,52 @@ classDiagram
 
 ---
 
-### Option 1: Full Stack via Docker Compose (Recommended)
+### Starting the Application
 
-Start the entire application stack (Spring Boot Backend + MongoDB 7.0 Container):
+Start the MongoDB container and the Spring Boot backend server with a single command:
 
 ```bash
-make compose-up
-# Alternatively:
-docker compose up -d
+make run
+# Or simply:
+make
 ```
 
-View live logs:
-```bash
-make compose-logs
-```
+This will:
+1. Spin up the MongoDB container in the background using `docker compose up -d`.
+2. Launch the Spring Boot application using `./mvnw spring-boot:run`.
 
-Stop the stack:
-```bash
-make compose-down
-```
+The REST API server will listen on `http://localhost:8080`.
 
 ---
 
-### Option 2: Running Backend Locally with Dockerized MongoDB
+### Database Commands
 
-1. **Start the MongoDB database container**:
-   ```bash
-   make db-up
-   # Alternatively: docker compose up -d mongodb
-   ```
+Manage the MongoDB container lifecycle independently with:
 
-2. **Launch the Spring Boot backend**:
-   ```bash
-   make run
-   # Alternatively: cd backend && ./mvnw spring-boot:run
-   ```
+```bash
+# Start MongoDB container
+make db-up
 
-The REST API server will start and listen on `http://localhost:8080`.
+# Stop MongoDB container
+make db-down
+
+# Restart MongoDB container
+make db-restart
+
+# Stream container logs
+make logs
+
+# Check container status
+make status
+```
 
 ---
 
 ## 🧪 Testing & Quality Assurance
 
-### Automated Integration Tests
-The repository includes automated test suites covering authentication, role-based access control (RBAC), product ownership isolation, cascade deletion, rate limiting, and global exception handling:
-
-```bash
-make test
-# Alternatively: cd backend && ./mvnw test
-```
-
 ### Interactive Web Test Client
 An interactive frontend test client is included. Simply open `test-client.html` in your web browser:
-- Register and log in users (User and Admin roles).
+- Register and log in users (`ROLE_USER` and `ROLE_ADMIN` roles).
 - Execute authenticated/unauthenticated API calls.
 - Inspect JSON responses, HTTP status codes, and JWT headers visually.
 
@@ -183,7 +176,7 @@ An interactive frontend test client is included. Simply open `test-client.html` 
 
 1. **BCrypt Password Hashing**: Passwords are salted and hashed using `BCryptPasswordEncoder` before database persistence. Raw passwords are never stored.
 2. **Stateless JWT Authentication**: Stateless session management via `SessionCreationPolicy.STATELESS`. Tokens are signed using HMAC-SHA256.
-3. **Role-Based Access Control (RBAC)**: Method-level authorization via `@PreAuthorize` and `@PostAuthorize` ensures only admins can manage user directories, and users can only mutate products they own.
+3. **Role-Based Access Control (RBAC)**: Method-level authorization via `@PreAuthorize` and `@PostAuthorize` enforcing standard Spring Security `ROLE_` prefixes (`ROLE_USER`, `ROLE_ADMIN`) ensures only admins can manage user directories, and users can only mutate products they own.
 4. **Cascade Deletion**: When an admin deletes a user, all associated products created by that user are automatically removed to maintain referential integrity.
 5. **NoSQL Injection Defense**: Built entirely on Spring Data MongoDB repository abstractions, preventing query injection.
 6. **Information Disclosure Prevention**: Sensitive fields like `password` are excluded from models via `@JsonIgnore` and separated via dedicated DTOs (`UserResponse`, `ProductResponse`, `AuthResponse`).
@@ -528,14 +521,9 @@ Delete a user account and cascade-delete all products owned by that user.
 
 | Command | Description |
 | :--- | :--- |
-| `make run` | Starts the Spring Boot backend server locally |
-| `make test` | Executes unit and integration test suite via Surefire |
-| `make build` | Compiles and packages application JAR (`target/backend-0.0.1-SNAPSHOT.jar`) |
-| `make clean` | Cleans target build artifacts |
-| `make compose-up` | Launches backend and MongoDB containers in the background |
-| `make compose-down` | Stops and removes Docker Compose containers |
-| `make compose-logs` | Follows real-time logs from Docker Compose services |
-| `make db-up` | Starts standalone MongoDB container |
-| `make db-down` | Stops standalone MongoDB container |
-| `make status` | Displays status of running Docker containers |
-| `make help` | Displays list of all available Makefile commands |
+| `make` / `make run` | Starts MongoDB container (`db-up`) and runs Spring Boot backend locally (`./mvnw spring-boot:run`) |
+| `make db-up` | Starts the MongoDB database container in the background (`docker compose up -d`) |
+| `make db-down` | Stops and removes the MongoDB database container (`docker compose down`) |
+| `make db-restart` | Restarts the MongoDB database container (`docker compose restart`) |
+| `make logs` | Streams live Docker container logs (`docker compose logs -f`) |
+| `make status` | Displays status of running Docker containers (`docker compose ps`) |
