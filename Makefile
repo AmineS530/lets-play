@@ -4,10 +4,6 @@ run: db-up
 	@echo "Starting Spring Boot application..."
 	@cd ./backend && ./mvnw spring-boot:run
 
-test:
-	@echo "Running tests..."
-	@cd ./backend && ./mvnw test
-
 build:
 	@echo "Building application..."
 	@cd ./backend && ./mvnw clean package -DskipTests
@@ -39,7 +35,6 @@ status:
 help:
 	@echo "Let's Play Makefile Commands:"
 	@echo "  make run          - Start Spring Boot application locally"
-	@echo "  make test         - Run unit & integration test suite"
 	@echo "  make build        - Compile and package JAR artifact"
 	@echo "  make clean        - Remove build artifacts"
 	@echo "  make db-up        - Start MongoDB container"
@@ -48,4 +43,4 @@ help:
 	@echo "  make logs         - Stream container logs"
 	@echo "  make status       - Check Docker container status"
 
-.PHONY: all run test build clean db-up db-down db-restart logs status help
+.PHONY: all run build clean db-up db-down db-restart logs status help

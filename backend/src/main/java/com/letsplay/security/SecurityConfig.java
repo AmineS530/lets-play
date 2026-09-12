@@ -62,9 +62,8 @@ public class SecurityConfig {
                         // Public Endpoints
                         .requestMatchers("/auth/**", "/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products", "/products/**", "/api/products", "/api/products/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        // Admin-only Endpoints
-                        .requestMatchers("/users/**", "/api/users/**").hasRole("ADMIN") // Fine-grained checks in controllers via @PreAuthorize / @PostAuthorize
+                        // User Endpoints (fine-grained method security in UserController via @PreAuthorize / @PostAuthorize)
+                        .requestMatchers("/users/**", "/api/users/**").authenticated()
                         // Authenticated Endpoints
                         .anyRequest().authenticated()
                 )
