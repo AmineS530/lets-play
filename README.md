@@ -64,7 +64,7 @@ The application follows a clean 4-tier layered architecture adhering to the Sing
 - **Token Management**: JJWT (`io.jsonwebtoken:jjwt` v0.12.5) with HMAC-SHA256 signing
 - **Data Validation**: Jakarta Bean Validation (`@NotNull`, `@NotBlank`, `@Email`, `@Size`, `@Min`)
 - **Code Optimization**: Project Lombok (`@Data`, `@Builder`, `@RequiredArgsConstructor`, etc.)
-- **Testing**: JUnit 5, Spring Boot Test, Spring Security Test, MockMvc
+- **Testing & Verification**: Interactive Web Client (`test-client.html`), cURL / Postman
 - **Build & Packaging**: Apache Maven (`./mvnw`)
 - **Orchestration**: Docker & Docker Compose
 - **Command Automation**: GNU Makefile
@@ -118,6 +118,31 @@ classDiagram
 - **Java Development Kit (JDK)**: Version 17 or higher
 - **Docker & Docker Compose**: Installed and running
 - **Make**: (Optional, for simplified terminal commands)
+
+---
+
+### Environment Configuration (`.env`)
+
+Create a `.env` file in the project root directory. Below is an **example template** with dummy values:
+
+```properties
+# Server
+SERVER_PORT=8080
+
+# MongoDB
+SPRING_DATA_MONGODB_HOST=localhost
+SPRING_DATA_MONGODB_PORT=27017
+SPRING_DATA_MONGODB_DATABASE=letsplay_example_db
+
+# Security & JWT (Must be at least 256 bits / 32 bytes)
+JWT_SECRET=your_super_secret_jwt_key_at_least_256_bits_long_example_only
+JWT_EXPIRATION=86400000
+
+# Default Admin User Setup
+ADMIN_NAME=Super Admin
+ADMIN_EMAIL=superadmin@example.com
+ADMIN_PASSWORD=changeMeInProduction123!
+```
 
 ---
 
@@ -529,6 +554,8 @@ Delete a user account and cascade-delete all products owned by that user.
 | Command | Description |
 | :--- | :--- |
 | `make` / `make run` | Starts MongoDB container (`db-up`) and runs Spring Boot backend locally (`./mvnw spring-boot:run`) |
+| `make build` | Compiles and packages backend JAR artifact (`./mvnw clean package -DskipTests`) |
+| `make clean` | Removes build target artifacts (`./mvnw clean`) |
 | `make db-up` | Starts the MongoDB database container in the background (`docker compose up -d`) |
 | `make db-down` | Stops and removes the MongoDB database container (`docker compose down`) |
 | `make db-restart` | Restarts the MongoDB database container (`docker compose restart`) |
