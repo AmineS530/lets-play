@@ -30,6 +30,9 @@ release.properties
 .env.*
 **/.env
 **/.env.*
+**/application.properties
+application.properties
+
 
 # STS / Eclipse
 .apt_generated
