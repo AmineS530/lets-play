@@ -39,18 +39,11 @@ public class AuthService {
             throw new EmailAlreadyExistsException("Email already registered: " + email);
         }
 
-        String role = request.getRole();
-        if (role == null || role.trim().isEmpty()) {
-            role = "USER";
-        } else {
-            role = role.trim().toUpperCase().replace("ROLE_", "");
-        }
-
         User user = User.builder()
                 .name(request.getName().trim())
                 .email(email)
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(role)
+                .role("USER")
                 .build();
 
         User savedUser = userRepository.save(user);

@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/products", "/products/**", "/api/products", "/api/products/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         // Admin-only Endpoints
-                        .requestMatchers("/users/**", "/api/users/**").hasAnyRole("ADMIN", "USER") // Fine-grained checks in controllers via @PreAuthorize / @PostAuthorize
+                        .requestMatchers("/users/**", "/api/users/**").hasRole("ADMIN") // Fine-grained checks in controllers via @PreAuthorize / @PostAuthorize
                         // Authenticated Endpoints
                         .anyRequest().authenticated()
                 )

@@ -139,6 +139,15 @@ The REST API server will listen on `http://localhost:8080`.
 
 ---
 
+### Default Administrator Setup
+
+Upon initial startup/setup, the application automatically provisions a default administrator account:
+- **Email**: `admin@letsplay.com` (configurable via `ADMIN_EMAIL`)
+- **Password**: `admin123` (configurable via `ADMIN_PASSWORD`)
+- **Role**: `ADMIN`
+
+Since public registration is restricted exclusively to standard `USER` accounts, use these credentials to authenticate administrative actions (such as viewing all users or managing user accounts).
+
 ### Database Commands
 
 Manage the MongoDB container lifecycle independently with:
@@ -225,7 +234,7 @@ All errors return a consistent JSON schema without exposing internal stack trace
 ### 1. Authentication Endpoints (`/auth`)
 
 #### `POST /auth/register`
-Register a new user account. Returns user metadata and a JWT authentication token.
+Register a new standard user account. Returns user metadata and a JWT authentication token. *(Note: Public registration exclusively provisions accounts with the `USER` role. Administrator accounts cannot be self-registered and are automatically initialized on application setup or created by existing administrators).*
 
 - **Access**: Public
 - **Request Body**:
@@ -233,11 +242,9 @@ Register a new user account. Returns user metadata and a JWT authentication toke
   {
     "name": "Alex Mercer",
     "email": "alex@example.com",
-    "password": "securePassword123",
-    "role": "USER"
+    "password": "securePassword123"
   }
   ```
-  *(Note: `role` is optional; defaults to `"USER"` if omitted. Accepted values: `"USER"`, `"ADMIN"`)*
 
 - **Success Response (`201 Created`)**:
   ```json

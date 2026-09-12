@@ -166,19 +166,18 @@
                     <div class="section-title">Authentication</div>
                     <div class="form-grid">
                         <form onsubmit="register(event)">
-                            <label>Register</label>
+                            <label>Register (Standard User)</label>
                             <input type="text" id="regName" placeholder="Name" required>
                             <input type="email" id="regEmail" placeholder="Email" required>
-                            <input type="password" id="regPass" placeholder="Password" required>
-                            <select id="regRole">
-                                <option value="USER">USER</option>
-                                <option value="ADMIN">ADMIN</option>
-                            </select>
-                            <button type="submit" class="btn">Register</button>
+                            <input type="password" id="regPass" placeholder="Password (min 6)" required>
+                            <button type="submit" class="btn" style="margin-top: auto;">Register</button>
                         </form>
 
                         <form onsubmit="login(event)">
-                            <label>Login</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label style="margin-bottom: 0;">Login</label>
+                                <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;" onclick="fillAdminCredentials()">Admin Credentials</button>
+                            </div>
                             <input type="email" id="loginEmail" placeholder="Email" required>
                             <input type="password" id="loginPass" placeholder="Password" required>
                             <button type="submit" class="btn" style="margin-top: auto;">Login</button>
@@ -514,13 +513,17 @@
             addLog("REQ", "Logout Executed", "Cleared token from storage.");
         }
 
+        function fillAdminCredentials() {
+            document.getElementById("loginEmail").value = "admin@letsplay.com";
+            document.getElementById("loginPass").value = "admin123";
+        }
+
         async function register(e) {
             e.preventDefault();
             const body = {
                 name: document.getElementById("regName").value,
                 email: document.getElementById("regEmail").value,
-                password: document.getElementById("regPass").value,
-                role: document.getElementById("regRole").value
+                password: document.getElementById("regPass").value
             };
             const res = await request("/auth/register", "POST", body);
             if (res.ok && res.data.token) {
