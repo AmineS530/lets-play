@@ -71,10 +71,6 @@ public class UserService {
         return mapToUserResponse(savedUser);
     }
 
-    public UserResponse updateUser(String id, UserRequest request) {
-        return updateUser(id, request, null);
-    }
-
     public UserResponse updateUser(String id, UserRequest request, com.letsplay.security.CustomUserDetails currentUser) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));

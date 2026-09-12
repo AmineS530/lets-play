@@ -9,9 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,15 +24,9 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private static final int MAX_REQUESTS_PER_MINUTE = 100;
     private final Map<String, RequestBucket> buckets = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
-    private final Environment environment;
-
-    public RateLimitingFilter() {
-        this(null);
-    }
 
     @Autowired
-    public RateLimitingFilter(Environment environment) {
-        this.environment = environment;
+    public RateLimitingFilter() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -44,11 +35,6 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        if (environment != null && environment.acceptsProfiles(Profiles.of("test"))) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         cleanupOldBucketsIfFull();
 

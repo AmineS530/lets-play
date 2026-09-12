@@ -8,8 +8,6 @@ import com.letsplay.model.Product;
 import com.letsplay.repository.ProductRepository;
 import com.letsplay.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,18 +49,6 @@ public class ProductService {
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .userId(ownerId)
-                .build();
-
-        Product savedProduct = productRepository.save(product);
-        return mapToProductResponse(savedProduct);
-    }
-
-    public ProductResponse createProduct(ProductRequest request, String currentUserId) {
-        Product product = Product.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .userId(currentUserId)
                 .build();
 
         Product savedProduct = productRepository.save(product);

@@ -5,13 +5,11 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.function.Function;
 
 /**
  * Service component responsible for JSON Web Tokens lifecycle management.
@@ -53,35 +51,10 @@ public class JwtService {
     }
 
     /**
-     * Generates a token from UserDetails.
-     */
-    public String generateToken(UserDetails userDetails) {
-        String role = userDetails.getAuthorities().stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("USER");
-        return generateToken(userDetails.getUsername(), role);
-    }
-
-    /**
      * Extracts the subject claim (the user's public ID) from a signed token.
      */
     public String extractPublicId(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    /**
-     * Extracts username / publicId from a signed token.
-     */
-    public String extractUsername(String token) {
-        return extractPublicId(token);
-    }
-
-    /**
-     * Extracts the custom role claim from a signed token.
-     */
-    public String extractRole(String token) {
-        return parseClaims(token).get("role", String.class);
     }
 
     /**
@@ -100,14 +73,6 @@ public class JwtService {
     }
 
     /**
-     * Validates whether a token is valid for a given user.
-     */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && isTokenValid(token);
-    }
-
-    /**
      * Centralized parser checking the token signature against the cryptographically secure signing key.
      *
      * @param token JWT string to parse.
@@ -119,10 +84,5 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = parseClaims(token);
-        return claimsResolver.apply(claims);
     }
 }
